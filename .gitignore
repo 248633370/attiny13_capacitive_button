@@ -58,6 +58,8 @@ Desktop.ini
 bin/**
 tmp/**
 tmp/**/*
+Release/*
+Debug/*
 *.tmp
 *.bak
 *.swp
