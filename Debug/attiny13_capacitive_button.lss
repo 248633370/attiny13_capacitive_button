@@ -3,35 +3,33 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
 
 Разделы:
 Инд Имя           Размер    VMA       LMA       Файл      Вырав
-  0 .text         00000114  00000000  00000000  00000094  2**1
+  0 .text         00000162  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  00000114  000001a8  2**0
+  1 .data         00000000  00800060  00000162  000001f6  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000003  00800060  00800060  000001a8  2**0
+  2 .bss          00000002  00800060  00800060  000001f6  2**0
                   ALLOC
-  3 .stab         000006b4  00000000  00000000  000001a8  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  4 .stabstr      00000054  00000000  00000000  0000085c  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .comment      00000011  00000000  00000000  000008b0  2**0
+  3 .comment      00000011  00000000  00000000  000001f6  2**0
                   CONTENTS, READONLY
-  6 .debug_aranges 00000030  00000000  00000000  000008c1  2**0
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000208  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000038  00000000  00000000  00000244  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_info   000000f3  00000000  00000000  000008f1  2**0
+  6 .debug_info   00000112  00000000  00000000  0000027c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00000095  00000000  00000000  000009e4  2**0
+  7 .debug_abbrev 000000a4  00000000  00000000  0000038e  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   0000014b  00000000  00000000  00000a79  2**0
+  8 .debug_line   0000016d  00000000  00000000  00000432  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  00000074  00000000  00000000  00000bc4  2**2
+  9 .debug_frame  00000094  00000000  00000000  000005a0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00004af2  00000000  00000000  00000c38  2**0
+ 10 .debug_str    00004f7f  00000000  00000000  00000634  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    000000b1  00000000  00000000  0000572a  2**0
+ 11 .debug_loc    000000ec  00000000  00000000  000055b3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000020  00000000  00000000  000057db  2**0
+ 12 .debug_ranges 00000028  00000000  00000000  0000569f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_macro  000016fa  00000000  00000000  000057fb  2**0
+ 13 .debug_macro  0000179f  00000000  00000000  000056c7  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Дизассемблирование раздела .text:
@@ -55,7 +53,7 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
   1a:	cd bf       	out	0x3d, r28	; 61
 
 0000001c <__do_clear_bss>:
-  1c:	10 e0       	ldi	r17, 0x00	; 0
+  1c:	20 e0       	ldi	r18, 0x00	; 0
   1e:	a0 e6       	ldi	r26, 0x60	; 96
   20:	b0 e0       	ldi	r27, 0x00	; 0
   22:	01 c0       	rjmp	.+2      	; 0x26 <.do_clear_bss_start>
@@ -64,19 +62,19 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
   24:	1d 92       	st	X+, r1
 
 00000026 <.do_clear_bss_start>:
-  26:	a3 36       	cpi	r26, 0x63	; 99
-  28:	b1 07       	cpc	r27, r17
+  26:	a2 36       	cpi	r26, 0x62	; 98
+  28:	b2 07       	cpc	r27, r18
   2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
-  2c:	6b d0       	rcall	.+214    	; 0x104 <main>
-  2e:	70 c0       	rjmp	.+224    	; 0x110 <_exit>
+  2c:	91 d0       	rcall	.+290    	; 0x150 <main>
+  2e:	97 c0       	rjmp	.+302    	; 0x15e <_exit>
 
 00000030 <__bad_interrupt>:
   30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
 
 00000032 <pwm_setup>:
-bool atx_status = false;
-bool full_light = false;
-bool half_light = false;
+//
+// write digital "low" to pin <pn> on port <prt>
+//#define DIGIWRITE_L(prt, pn) prt &= ~(1<<pn)
 
 void pwm_setup(void)
 {
@@ -151,93 +149,152 @@ void pwm_setup(void)
   a0:	cf 91       	pop	r28
   a2:	08 95       	ret
 
-000000a4 <pson_switch>:
-	// ADIE - 1 enable ADC interrupt
-	// ADIF - 1 enable
-}
-*/
-void pson_switch()
+000000a4 <adc_setup>:
+
+
+void adc_setup(void)
 {
   a4:	cf 93       	push	r28
   a6:	df 93       	push	r29
   a8:	cd b7       	in	r28, 0x3d	; 61
   aa:	dd 27       	eor	r29, r29
+	// config ADC
+	ADMUX |= (1<<ADLAR);
+  ac:	87 e2       	ldi	r24, 0x27	; 39
+  ae:	90 e0       	ldi	r25, 0x00	; 0
+  b0:	27 e2       	ldi	r18, 0x27	; 39
+  b2:	30 e0       	ldi	r19, 0x00	; 0
+  b4:	f9 01       	movw	r30, r18
+  b6:	20 81       	ld	r18, Z
+  b8:	20 62       	ori	r18, 0x20	; 32
+  ba:	fc 01       	movw	r30, r24
+  bc:	20 83       	st	Z, r18
+	ADMUX |= (1<<MUX1);
+  be:	87 e2       	ldi	r24, 0x27	; 39
+  c0:	90 e0       	ldi	r25, 0x00	; 0
+  c2:	27 e2       	ldi	r18, 0x27	; 39
+  c4:	30 e0       	ldi	r19, 0x00	; 0
+  c6:	f9 01       	movw	r30, r18
+  c8:	20 81       	ld	r18, Z
+  ca:	22 60       	ori	r18, 0x02	; 2
+  cc:	fc 01       	movw	r30, r24
+  ce:	20 83       	st	Z, r18
+	// REFS0 - 0 set Vcc as analog reference
+	// ADLAR - 1 left align, use ADCH register
+	// MUX1:0 - 0b10 ADC2 (PB4)
+
+	ADCSRA |= (1<<ADPS2)|(1<<ADPS0);
+  d0:	86 e2       	ldi	r24, 0x26	; 38
+  d2:	90 e0       	ldi	r25, 0x00	; 0
+  d4:	26 e2       	ldi	r18, 0x26	; 38
+  d6:	30 e0       	ldi	r19, 0x00	; 0
+  d8:	f9 01       	movw	r30, r18
+  da:	20 81       	ld	r18, Z
+  dc:	25 60       	ori	r18, 0x05	; 5
+  de:	fc 01       	movw	r30, r24
+  e0:	20 83       	st	Z, r18
+	ADCSRA |= (1<<ADEN)|(1<<ADSC)|(1<<ADATE)|(1<<ADIE);
+  e2:	86 e2       	ldi	r24, 0x26	; 38
+  e4:	90 e0       	ldi	r25, 0x00	; 0
+  e6:	26 e2       	ldi	r18, 0x26	; 38
+  e8:	30 e0       	ldi	r19, 0x00	; 0
+  ea:	f9 01       	movw	r30, r18
+  ec:	20 81       	ld	r18, Z
+  ee:	28 6e       	ori	r18, 0xE8	; 232
+  f0:	fc 01       	movw	r30, r24
+  f2:	20 83       	st	Z, r18
+	// ADPS2:0 - set freq divider 0b101 - /32
+	// ADEN - 1 enable ADC
+	// ADATE - 1 enable Freerun mode
+	// ADIE - 1 enable ADC interrupt
+	// ADIF - 1 enable
+}
+  f4:	df 91       	pop	r29
+  f6:	cf 91       	pop	r28
+  f8:	08 95       	ret
+
+000000fa <pson_switch>:
+
+void pson_switch()
+{
+  fa:	cf 93       	push	r28
+  fc:	df 93       	push	r29
+  fe:	cd b7       	in	r28, 0x3d	; 61
+ 100:	dd 27       	eor	r29, r29
 	if (atx_status)
-  ac:	80 91 60 00 	lds	r24, 0x0060
-  b0:	88 23       	and	r24, r24
-  b2:	a1 f0       	breq	.+40     	; 0xdc <pson_switch+0x38>
+ 102:	80 91 60 00 	lds	r24, 0x0060
+ 106:	88 23       	and	r24, r24
+ 108:	91 f0       	breq	.+36     	; 0x12e <pson_switch+0x34>
 	{
 		DDRB &= ~(1<<PB2);
-  b4:	87 e3       	ldi	r24, 0x37	; 55
-  b6:	90 e0       	ldi	r25, 0x00	; 0
-  b8:	27 e3       	ldi	r18, 0x37	; 55
-  ba:	30 e0       	ldi	r19, 0x00	; 0
-  bc:	f9 01       	movw	r30, r18
-  be:	20 81       	ld	r18, Z
-  c0:	2b 7f       	andi	r18, 0xFB	; 251
-  c2:	fc 01       	movw	r30, r24
-  c4:	20 83       	st	Z, r18
+ 10a:	87 e3       	ldi	r24, 0x37	; 55
+ 10c:	90 e0       	ldi	r25, 0x00	; 0
+ 10e:	27 e3       	ldi	r18, 0x37	; 55
+ 110:	30 e0       	ldi	r19, 0x00	; 0
+ 112:	f9 01       	movw	r30, r18
+ 114:	20 81       	ld	r18, Z
+ 116:	2b 7f       	andi	r18, 0xFB	; 251
+ 118:	fc 01       	movw	r30, r24
+ 11a:	20 83       	st	Z, r18
 		atx_status = false;
-  c6:	10 92 60 00 	sts	0x0060, r1
+ 11c:	10 92 60 00 	sts	0x0060, r1
 		OCR0B = 0x00;
-  ca:	89 e4       	ldi	r24, 0x49	; 73
-  cc:	90 e0       	ldi	r25, 0x00	; 0
-  ce:	fc 01       	movw	r30, r24
-  d0:	10 82       	st	Z, r1
+ 120:	89 e4       	ldi	r24, 0x49	; 73
+ 122:	90 e0       	ldi	r25, 0x00	; 0
+ 124:	fc 01       	movw	r30, r24
+ 126:	10 82       	st	Z, r1
 		full_light = false;
-  d2:	10 92 61 00 	sts	0x0061, r1
-		half_light = false;
-  d6:	10 92 62 00 	sts	0x0062, r1
-  da:	11 c0       	rjmp	.+34     	; 0xfe <pson_switch+0x5a>
+ 128:	10 92 61 00 	sts	0x0061, r1
+ 12c:	0e c0       	rjmp	.+28     	; 0x14a <pson_switch+0x50>
 	}
 	else
 	{
 		DDRB |= (1<<PB2);	// enable PB2 (ATX PS_ON )
-  dc:	87 e3       	ldi	r24, 0x37	; 55
-  de:	90 e0       	ldi	r25, 0x00	; 0
-  e0:	27 e3       	ldi	r18, 0x37	; 55
-  e2:	30 e0       	ldi	r19, 0x00	; 0
-  e4:	f9 01       	movw	r30, r18
-  e6:	20 81       	ld	r18, Z
-  e8:	24 60       	ori	r18, 0x04	; 4
-  ea:	fc 01       	movw	r30, r24
-  ec:	20 83       	st	Z, r18
+ 12e:	87 e3       	ldi	r24, 0x37	; 55
+ 130:	90 e0       	ldi	r25, 0x00	; 0
+ 132:	27 e3       	ldi	r18, 0x37	; 55
+ 134:	30 e0       	ldi	r19, 0x00	; 0
+ 136:	f9 01       	movw	r30, r18
+ 138:	20 81       	ld	r18, Z
+ 13a:	24 60       	ori	r18, 0x04	; 4
+ 13c:	fc 01       	movw	r30, r24
+ 13e:	20 83       	st	Z, r18
 		OCR0B = 0x80;		// enable half duty PWM on PB1 (+12V power key)
-  ee:	89 e4       	ldi	r24, 0x49	; 73
-  f0:	90 e0       	ldi	r25, 0x00	; 0
-  f2:	20 e8       	ldi	r18, 0x80	; 128
-  f4:	fc 01       	movw	r30, r24
-  f6:	20 83       	st	Z, r18
-		half_light = true;
-  f8:	81 e0       	ldi	r24, 0x01	; 1
-  fa:	80 93 62 00 	sts	0x0062, r24
+ 140:	89 e4       	ldi	r24, 0x49	; 73
+ 142:	90 e0       	ldi	r25, 0x00	; 0
+ 144:	20 e8       	ldi	r18, 0x80	; 128
+ 146:	fc 01       	movw	r30, r24
+ 148:	20 83       	st	Z, r18
 	}
 }
-  fe:	df 91       	pop	r29
- 100:	cf 91       	pop	r28
- 102:	08 95       	ret
+ 14a:	df 91       	pop	r29
+ 14c:	cf 91       	pop	r28
+ 14e:	08 95       	ret
 
-00000104 <main>:
+00000150 <main>:
 
 
 int main(void)
 {
- 104:	cf 93       	push	r28
- 106:	df 93       	push	r29
- 108:	cd b7       	in	r28, 0x3d	; 61
- 10a:	dd 27       	eor	r29, r29
-	pwm_setup();
- 10c:	92 df       	rcall	.-220    	; 0x32 <pwm_setup>
+ 150:	cf 93       	push	r28
+ 152:	df 93       	push	r29
+ 154:	cd b7       	in	r28, 0x3d	; 61
+ 156:	dd 27       	eor	r29, r29
+	//pwm_setup();
+	adc_setup();
+ 158:	a5 df       	rcall	.-182    	; 0xa4 <adc_setup>
+	sei();	// enable global interrupts
+ 15a:	78 94       	sei
 
 	//main loop
 	while (1)
 	{
 
 	}
- 10e:	ff cf       	rjmp	.-2      	; 0x10e <main+0xa>
+ 15c:	ff cf       	rjmp	.-2      	; 0x15c <main+0xc>
 
-00000110 <_exit>:
- 110:	f8 94       	cli
+0000015e <_exit>:
+ 15e:	f8 94       	cli
 
-00000112 <__stop_program>:
- 112:	ff cf       	rjmp	.-2      	; 0x112 <__stop_program>
+00000160 <__stop_program>:
+ 160:	ff cf       	rjmp	.-2      	; 0x160 <__stop_program>

@@ -3,17 +3,15 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
 
 Разделы:
 Инд Имя           Размер    VMA       LMA       Файл      Вырав
-  0 .text         000001cc  00000000  00000000  00000094  2**1
+  0 .text         0000007c  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  000001cc  00000260  2**0
+  1 .data         00000000  00800060  0000007c  00000110  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000009  00800060  00800060  00000260  2**0
+  2 .bss          00000002  00800060  00800060  00000110  2**0
                   ALLOC
-  3 .stab         000006b4  00000000  00000000  00000260  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  4 .stabstr      00000054  00000000  00000000  00000914  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .comment      00000011  00000000  00000000  00000968  2**0
+  3 .comment      00000011  00000000  00000000  00000110  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000124  2**2
                   CONTENTS, READONLY
 
 Дизассемблирование раздела .text:
@@ -28,7 +26,7 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
    c:	11 c0       	rjmp	.+34     	; 0x30 <__bad_interrupt>
    e:	10 c0       	rjmp	.+32     	; 0x30 <__bad_interrupt>
   10:	0f c0       	rjmp	.+30     	; 0x30 <__bad_interrupt>
-  12:	27 c0       	rjmp	.+78     	; 0x62 <__vector_9>
+  12:	0e c0       	rjmp	.+28     	; 0x30 <__bad_interrupt>
 
 00000014 <__ctors_end>:
   14:	11 24       	eor	r1, r1
@@ -37,7 +35,7 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
   1a:	cd bf       	out	0x3d, r28	; 61
 
 0000001c <__do_clear_bss>:
-  1c:	10 e0       	ldi	r17, 0x00	; 0
+  1c:	20 e0       	ldi	r18, 0x00	; 0
   1e:	a0 e6       	ldi	r26, 0x60	; 96
   20:	b0 e0       	ldi	r27, 0x00	; 0
   22:	01 c0       	rjmp	.+2      	; 0x26 <.do_clear_bss_start>
@@ -46,11 +44,11 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
   24:	1d 92       	st	X+, r1
 
 00000026 <.do_clear_bss_start>:
-  26:	a9 36       	cpi	r26, 0x69	; 105
-  28:	b1 07       	cpc	r27, r17
+  26:	a2 36       	cpi	r26, 0x62	; 98
+  28:	b2 07       	cpc	r27, r18
   2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
-  2c:	61 d0       	rcall	.+194    	; 0xf0 <main>
-  2e:	cc c0       	rjmp	.+408    	; 0x1c8 <_exit>
+  2c:	23 d0       	rcall	.+70     	; 0x74 <main>
+  2e:	24 c0       	rjmp	.+72     	; 0x78 <_exit>
 
 00000030 <__bad_interrupt>:
   30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
@@ -68,191 +66,33 @@ attiny13_capacitive_button.elf:     формат файла elf32-avr
   44:	8f b5       	in	r24, 0x2f	; 47
   46:	80 62       	ori	r24, 0x20	; 32
   48:	8f bd       	out	0x2f, r24	; 47
-  4a:	80 e8       	ldi	r24, 0x80	; 128
-  4c:	86 bf       	out	0x36, r24	; 54
-  4e:	08 95       	ret
+  4a:	83 b7       	in	r24, 0x33	; 51
+  4c:	81 60       	ori	r24, 0x01	; 1
+  4e:	83 bf       	out	0x33, r24	; 51
+  50:	80 e8       	ldi	r24, 0x80	; 128
+  52:	89 bd       	out	0x29, r24	; 41
+  54:	08 95       	ret
 
-00000050 <adc_setup>:
-  50:	3d 9a       	sbi	0x07, 5	; 7
-  52:	39 9a       	sbi	0x07, 1	; 7
-  54:	86 b1       	in	r24, 0x06	; 6
-  56:	85 60       	ori	r24, 0x05	; 5
-  58:	86 b9       	out	0x06, r24	; 6
-  5a:	86 b1       	in	r24, 0x06	; 6
-  5c:	88 6e       	ori	r24, 0xE8	; 232
-  5e:	86 b9       	out	0x06, r24	; 6
-  60:	08 95       	ret
+00000056 <pson_switch>:
+  56:	80 91 61 00 	lds	r24, 0x0061
+  5a:	88 23       	and	r24, r24
+  5c:	39 f0       	breq	.+14     	; 0x6c <pson_switch+0x16>
+  5e:	ba 98       	cbi	0x17, 2	; 23
+  60:	10 92 61 00 	sts	0x0061, r1
+  64:	19 bc       	out	0x29, r1	; 41
+  66:	10 92 60 00 	sts	0x0060, r1
+  6a:	08 95       	ret
+  6c:	ba 9a       	sbi	0x17, 2	; 23
+  6e:	80 e8       	ldi	r24, 0x80	; 128
+  70:	89 bd       	out	0x29, r24	; 41
+  72:	08 95       	ret
 
-00000062 <__vector_9>:
-  62:	1f 92       	push	r1
-  64:	0f 92       	push	r0
-  66:	0f b6       	in	r0, 0x3f	; 63
-  68:	0f 92       	push	r0
-  6a:	11 24       	eor	r1, r1
-  6c:	2f 93       	push	r18
-  6e:	8f 93       	push	r24
-  70:	9f 93       	push	r25
-  72:	af 93       	push	r26
-  74:	bf 93       	push	r27
-  76:	80 91 63 00 	lds	r24, 0x0063
-  7a:	90 91 64 00 	lds	r25, 0x0064
-  7e:	a0 91 65 00 	lds	r26, 0x0065
-  82:	b0 91 66 00 	lds	r27, 0x0066
-  86:	25 b1       	in	r18, 0x05	; 5
-  88:	82 0f       	add	r24, r18
-  8a:	91 1d       	adc	r25, r1
-  8c:	a1 1d       	adc	r26, r1
-  8e:	b1 1d       	adc	r27, r1
-  90:	80 93 63 00 	sts	0x0063, r24
-  94:	90 93 64 00 	sts	0x0064, r25
-  98:	a0 93 65 00 	sts	0x0065, r26
-  9c:	b0 93 66 00 	sts	0x0066, r27
-  a0:	80 91 67 00 	lds	r24, 0x0067
-  a4:	90 91 68 00 	lds	r25, 0x0068
-  a8:	01 96       	adiw	r24, 0x01	; 1
-  aa:	90 93 68 00 	sts	0x0068, r25
-  ae:	80 93 67 00 	sts	0x0067, r24
-  b2:	bf 91       	pop	r27
-  b4:	af 91       	pop	r26
-  b6:	9f 91       	pop	r25
-  b8:	8f 91       	pop	r24
-  ba:	2f 91       	pop	r18
-  bc:	0f 90       	pop	r0
-  be:	0f be       	out	0x3f, r0	; 63
-  c0:	0f 90       	pop	r0
-  c2:	1f 90       	pop	r1
-  c4:	18 95       	reti
+00000074 <main>:
+  74:	de df       	rcall	.-68     	; 0x32 <pwm_setup>
+  76:	ff cf       	rjmp	.-2      	; 0x76 <main+0x2>
 
-000000c6 <pson>:
-  c6:	80 91 62 00 	lds	r24, 0x0062
-  ca:	88 23       	and	r24, r24
-  cc:	51 f0       	breq	.+20     	; 0xe2 <pson+0x1c>
-  ce:	bb 98       	cbi	0x17, 3	; 23
-  d0:	10 92 62 00 	sts	0x0062, r1
-  d4:	19 bc       	out	0x29, r1	; 41
-  d6:	81 e0       	ldi	r24, 0x01	; 1
-  d8:	80 93 61 00 	sts	0x0061, r24
-  dc:	80 93 60 00 	sts	0x0060, r24
-  e0:	08 95       	ret
-  e2:	bb 9a       	sbi	0x17, 3	; 23
-  e4:	80 e8       	ldi	r24, 0x80	; 128
-  e6:	89 bd       	out	0x29, r24	; 41
-  e8:	81 e0       	ldi	r24, 0x01	; 1
-  ea:	80 93 61 00 	sts	0x0061, r24
-  ee:	08 95       	ret
+00000078 <_exit>:
+  78:	f8 94       	cli
 
-000000f0 <main>:
-  f0:	78 94       	sei
-  f2:	9f df       	rcall	.-194    	; 0x32 <pwm_setup>
-  f4:	ad df       	rcall	.-166    	; 0x50 <adc_setup>
-  f6:	80 91 67 00 	lds	r24, 0x0067
-  fa:	90 91 68 00 	lds	r25, 0x0068
-  fe:	88 3e       	cpi	r24, 0xE8	; 232
- 100:	93 40       	sbci	r25, 0x03	; 3
- 102:	fc f0       	brlt	.+62     	; 0x142 <main+0x52>
- 104:	60 91 63 00 	lds	r22, 0x0063
- 108:	70 91 64 00 	lds	r23, 0x0064
- 10c:	80 91 65 00 	lds	r24, 0x0065
- 110:	90 91 66 00 	lds	r25, 0x0066
- 114:	20 91 67 00 	lds	r18, 0x0067
- 118:	30 91 68 00 	lds	r19, 0x0068
- 11c:	44 27       	eor	r20, r20
- 11e:	37 fd       	sbrc	r19, 7
- 120:	40 95       	com	r20
- 122:	54 2f       	mov	r21, r20
- 124:	13 d0       	rcall	.+38     	; 0x14c <__divmodsi4>
- 126:	80 91 63 00 	lds	r24, 0x0063
- 12a:	90 91 64 00 	lds	r25, 0x0064
- 12e:	a0 91 65 00 	lds	r26, 0x0065
- 132:	b0 91 66 00 	lds	r27, 0x0066
- 136:	10 92 68 00 	sts	0x0068, r1
- 13a:	10 92 67 00 	sts	0x0067, r1
- 13e:	8e 01       	movw	r16, r28
- 140:	e9 01       	movw	r28, r18
- 142:	c0 17       	cp	r28, r16
- 144:	d1 07       	cpc	r29, r17
- 146:	bc f6       	brge	.-82     	; 0xf6 <main+0x6>
- 148:	be df       	rcall	.-132    	; 0xc6 <pson>
- 14a:	d5 cf       	rjmp	.-86     	; 0xf6 <main+0x6>
-
-0000014c <__divmodsi4>:
- 14c:	05 2e       	mov	r0, r21
- 14e:	97 fb       	bst	r25, 7
- 150:	16 f4       	brtc	.+4      	; 0x156 <__divmodsi4+0xa>
- 152:	00 94       	com	r0
- 154:	0f d0       	rcall	.+30     	; 0x174 <__negsi2>
- 156:	57 fd       	sbrc	r21, 7
- 158:	05 d0       	rcall	.+10     	; 0x164 <__divmodsi4_neg2>
- 15a:	14 d0       	rcall	.+40     	; 0x184 <__udivmodsi4>
- 15c:	07 fc       	sbrc	r0, 7
- 15e:	02 d0       	rcall	.+4      	; 0x164 <__divmodsi4_neg2>
- 160:	46 f4       	brtc	.+16     	; 0x172 <__divmodsi4_exit>
- 162:	08 c0       	rjmp	.+16     	; 0x174 <__negsi2>
-
-00000164 <__divmodsi4_neg2>:
- 164:	50 95       	com	r21
- 166:	40 95       	com	r20
- 168:	30 95       	com	r19
- 16a:	21 95       	neg	r18
- 16c:	3f 4f       	sbci	r19, 0xFF	; 255
- 16e:	4f 4f       	sbci	r20, 0xFF	; 255
- 170:	5f 4f       	sbci	r21, 0xFF	; 255
-
-00000172 <__divmodsi4_exit>:
- 172:	08 95       	ret
-
-00000174 <__negsi2>:
- 174:	90 95       	com	r25
- 176:	80 95       	com	r24
- 178:	70 95       	com	r23
- 17a:	61 95       	neg	r22
- 17c:	7f 4f       	sbci	r23, 0xFF	; 255
- 17e:	8f 4f       	sbci	r24, 0xFF	; 255
- 180:	9f 4f       	sbci	r25, 0xFF	; 255
- 182:	08 95       	ret
-
-00000184 <__udivmodsi4>:
- 184:	a1 e2       	ldi	r26, 0x21	; 33
- 186:	1a 2e       	mov	r1, r26
- 188:	aa 1b       	sub	r26, r26
- 18a:	bb 1b       	sub	r27, r27
- 18c:	fd 01       	movw	r30, r26
- 18e:	0d c0       	rjmp	.+26     	; 0x1aa <__udivmodsi4_ep>
-
-00000190 <__udivmodsi4_loop>:
- 190:	aa 1f       	adc	r26, r26
- 192:	bb 1f       	adc	r27, r27
- 194:	ee 1f       	adc	r30, r30
- 196:	ff 1f       	adc	r31, r31
- 198:	a2 17       	cp	r26, r18
- 19a:	b3 07       	cpc	r27, r19
- 19c:	e4 07       	cpc	r30, r20
- 19e:	f5 07       	cpc	r31, r21
- 1a0:	20 f0       	brcs	.+8      	; 0x1aa <__udivmodsi4_ep>
- 1a2:	a2 1b       	sub	r26, r18
- 1a4:	b3 0b       	sbc	r27, r19
- 1a6:	e4 0b       	sbc	r30, r20
- 1a8:	f5 0b       	sbc	r31, r21
-
-000001aa <__udivmodsi4_ep>:
- 1aa:	66 1f       	adc	r22, r22
- 1ac:	77 1f       	adc	r23, r23
- 1ae:	88 1f       	adc	r24, r24
- 1b0:	99 1f       	adc	r25, r25
- 1b2:	1a 94       	dec	r1
- 1b4:	69 f7       	brne	.-38     	; 0x190 <__udivmodsi4_loop>
- 1b6:	60 95       	com	r22
- 1b8:	70 95       	com	r23
- 1ba:	80 95       	com	r24
- 1bc:	90 95       	com	r25
- 1be:	9b 01       	movw	r18, r22
- 1c0:	ac 01       	movw	r20, r24
- 1c2:	bd 01       	movw	r22, r26
- 1c4:	cf 01       	movw	r24, r30
- 1c6:	08 95       	ret
-
-000001c8 <_exit>:
- 1c8:	f8 94       	cli
-
-000001ca <__stop_program>:
- 1ca:	ff cf       	rjmp	.-2      	; 0x1ca <__stop_program>
+0000007a <__stop_program>:
+  7a:	ff cf       	rjmp	.-2      	; 0x7a <__stop_program>
