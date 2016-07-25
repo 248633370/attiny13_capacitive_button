@@ -36,20 +36,16 @@ volatile uint8_t adc_count;
 
 void pwm_setup(void)
 {
-	//PB0 - Pull-UP on (We can disable pull-up globally using PUD in MCUCR)
-	PORTB |= (1<<PB0);
-	//PB1 in output mode
-	DDRB |= (1<<PB1);
 	// PWM out on PB1
-	TCCR0A |= (1<<WGM01)|(1<<WGM00);
 	TCCR0A |= (1<<COM0B1);
-	TCCR0B |= (1<<CS00);
+	TCCR0A |= (1<<WGM01)|(1<<WGM00);
+	TCCR0B |= (1<<CS01)|(1<<CS00);
 	// COM0B1 - 1 set "Clear OC0B on Compare Match, set OC0B at TOP"
-	// WGM02:0 - 0b011 set Fast PWM Mode with TOP in OCRA
-	// CS02:0 - 0b001 set clock source divider /32
-
-	//OCR0A = 0x80; // Duty about 50% (128 from 255)
-	//OCR0B = 0x80; // Duty about 50% (128 from 255)
+	// WGM02:0 - 0b011 set Fast PWM Mode with TOP in 0xFF
+	// CS02:0 - 0b011 set clock source divider /64
+	//(1<<WGM02)|
+	//PB1 output mode
+	DDRB |= (1<<PB1);
 }
 
 void adc_setup(void)
@@ -74,32 +70,23 @@ void adc_setup(void)
 	// SM1:0 - 0b01 ADC Noise Reduction
 }
 
-/*
-	unsigned int adc_read(void)
-	{
-		ADCSRA |= (1<<ADSC); //start conversion
-		while(!(ADCSRA & (1<<ADIF))); //wait for conversion to finish
-		ADCSRA |= (1<<ADIF); //reset the flag
-		return ADC; //return value
-	}
-*/
-
 ISR(ADC_vect)
 {
 	adc_count++;
 	retval += ADCH;
 	PORTB |= (1<<PB2); // enable Pull-Up
-	ADMUX |= (1<<MUX1); // switch multiplexer to PB3(ADC3)
+	//ADMUX |= (1<<MUX1); // switch multiplexer to PB3(ADC3)
 	static char i;
 	for (i=0; i<250; i++){} // some delay
+	for (i=0; i<250; i++){} // some delay
 	PORTB &= ~(1<<PB2); // disable Pull-Up
-	ADMUX &= ~(1<<MUX1); // switch multiplexer to PB2(ADC1)
+	//ADMUX &= ~(1<<MUX1); // switch multiplexer to PB2(ADC1)
 	ADCSRA |= (1<<ADSC); // start ADC conversion
 }
 
 void pson_switch()
 {
-	if (atx_status = 1)
+	if (atx_status == 1)
 	{
 		// if ATX on - disable power
 		DDRB &= ~(1<<PB0);
@@ -107,31 +94,38 @@ void pson_switch()
 		OCR0B = 0x00;
 		//Reset status vars
 		atx_status = 0;
-		if (half_light == 1)
+		/*
+		 * if (half_light == 1)
 			{
 			half_light = 0;
 			}
+			*/
 	}
 	else
 	{
 		DDRB |= (1<<PB0);	// enable PB0 (ATX PS_ON )
-		OCR0B = 0x00;		// enable duty PWM on PB1 (+12V power key)
+		OCR0B = 0xff;		// enable duty PWM on PB1 (+12V power key)
 		atx_status = 1;
-		half_light = 1;
+		//half_light = 1;
 	}
 }
 
 int main(void)
 {
-	//pwm_setup();
+	pwm_setup();
 	adc_setup();
 	sei();	// enable global interrupts
 	//sleep_cpu(); // going to sleep
 
-	while (adc_count < 10){}
-	adc_sample = retval/adc_count;
-	adc_count = 0;
-	retval = 0;
+	while (adc_sample == 0 )
+	{
+		if (adc_count >= 4)
+		{
+			adc_sample = retval/adc_count;
+			adc_count = 0;
+			retval = 0;
+		}
+	}
 
 	//main loop
 	while (1)
@@ -141,11 +135,9 @@ int main(void)
 			adc_current = retval/adc_count;
 			adc_count = 0;
 			retval = 0;
-			if (adc_sample < adc_current)
+			if (adc_sample < adc_current/2)
 			{
 				pson_switch();
-				static char i;
-				for (i=0; i<250; i++){}
 			}
 		}
 	}
